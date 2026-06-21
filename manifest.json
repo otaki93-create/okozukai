@@ -2,7 +2,7 @@
   "name": "お小遣い帳",
   "short_name": "お小遣い帳",
   "description": "毎月のお小遣い残高を管理するアプリ",
-  "start_url": "/",
+  "start_url": "/okozukai/",
   "display": "standalone",
   "background_color": "#534AB7",
   "theme_color": "#534AB7",
