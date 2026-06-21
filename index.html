@@ -4,13 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>お小遣い帳</title>
-
-  <!-- PWA / iPhone ホーム画面対応 -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="お小遣い帳" />
-  <link rel="apple-touch-icon" href="icon.svg" />
-  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="https://otaki93-create.github.io/okozukai/icon.svg" />
+  <link rel="manifest" href="https://otaki93-create.github.io/okozukai/manifest.json" />
   <meta name="theme-color" content="#534AB7" />
 
   <style>
@@ -43,7 +41,6 @@
       flex-direction: column;
     }
 
-    /* ヘッダー */
     .header {
       background: var(--purple-600);
       padding: calc(var(--safe-top) + 1rem) 1.25rem 2.5rem;
@@ -130,7 +127,6 @@
       color: var(--purple-200);
     }
 
-    /* ボディ */
     .body {
       padding: 0 1rem;
       flex: 1;
@@ -203,7 +199,6 @@
 
     .purple-btn:active { background: var(--purple-800); transform: scale(0.97); }
 
-    /* 支出リスト */
     .exp-list { list-style: none; }
 
     .exp-item {
@@ -216,7 +211,6 @@
 
     .exp-item:last-child { border-bottom: none; }
     .exp-date { font-size: 13px; color: #888; }
-
     .exp-right { display: flex; align-items: center; gap: 10px; }
     .exp-amt { font-size: 15px; font-weight: 600; color: #993356; }
 
@@ -249,7 +243,6 @@
 </head>
 <body>
 <div class="app">
-
   <div class="header">
     <div class="header-top">
       <span class="app-title">お小遣い帳</span>
@@ -310,6 +303,10 @@
 </div>
 
 <script>
+  if (window.navigator.standalone) {
+    window.location.replace('https://otaki93-create.github.io/okozukai/');
+  }
+
   const S = {
     year: new Date().getFullYear(),
     month: new Date().getMonth(),
