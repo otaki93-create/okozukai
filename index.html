@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>お小遣い帳</title>
+
+  <!-- PWA / iPhone ホーム画面対応 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="お小遣い帳" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#534AB7" />
+
+  <style>
+    :root {
+      --purple-50: #EEEDFE;
+      --purple-100: #CECBF6;
+      --purple-200: #AFA9EC;
+      --purple-400: #7F77DD;
+      --purple-600: #534AB7;
+      --purple-800: #3C3489;
+      --purple-900: #26215C;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+      background: #F4F3FF;
+      min-height: 100dvh;
+      color: #1a1a2e;
+    }
+
+    .app {
+      max-width: 430px;
+      margin: 0 auto;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ヘッダー */
+    .header {
+      background: var(--purple-600);
+      padding: calc(var(--safe-top) + 1rem) 1.25rem 2.5rem;
+      border-radius: 0 0 28px 28px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .app-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--purple-50);
+      letter-spacing: 0.04em;
+    }
+
+    .month-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      color: #fff;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .nav-btn:active { background: rgba(255,255,255,0.3); }
+
+    .month-txt {
+      font-size: 14px;
+      color: var(--purple-100);
+      font-weight: 500;
+      min-width: 90px;
+      text-align: center;
+    }
+
+    .balance-area { text-align: center; }
+    .balance-lbl { font-size: 12px; color: var(--purple-200); margin-bottom: 4px; letter-spacing: 0.05em; }
+
+    .balance-num {
+      font-size: 46px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      transition: color 0.3s;
+    }
+
+    .balance-num.low { color: #F4C0D1; }
+
+    .prog-bg {
+      background: rgba(255,255,255,0.18);
+      border-radius: 99px;
+      height: 6px;
+      margin: 14px 0 6px;
+      overflow: hidden;
+    }
+
+    .prog-bar {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s ease, background 0.3s;
+    }
+
+    .prog-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--purple-200);
+    }
+
+    /* ボディ */
+    .body {
+      padding: 0 1rem;
+      flex: 1;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 10px;
+      margin: -1.2rem 0 1rem;
+    }
+
+    .stat-card {
+      background: #fff;
+      border: 1px solid var(--purple-100);
+      border-radius: 14px;
+      padding: 0.85rem 1rem;
+    }
+
+    .stat-lbl { font-size: 11px; color: var(--purple-400); margin-bottom: 3px; }
+    .stat-val { font-size: 20px; font-weight: 600; color: var(--purple-800); }
+
+    .section {
+      background: #fff;
+      border: 1px solid #e8e6fa;
+      border-radius: 16px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .section-ttl {
+      font-size: 11px;
+      color: var(--purple-400);
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .row { display: flex; gap: 8px; }
+
+    input[type="number"] {
+      flex: 1;
+      height: 44px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 16px;
+      color: #1a1a2e;
+      background: #fafafa;
+      -webkit-appearance: none;
+      outline: none;
+    }
+
+    input[type="number"]:focus { border-color: var(--purple-400); background: #fff; }
+
+    .purple-btn {
+      background: var(--purple-600);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 0 18px;
+      height: 44px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .purple-btn:active { background: var(--purple-800); transform: scale(0.97); }
+
+    /* 支出リスト */
+    .exp-list { list-style: none; }
+
+    .exp-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--purple-50);
+    }
+
+    .exp-item:last-child { border-bottom: none; }
+    .exp-date { font-size: 13px; color: #888; }
+
+    .exp-right { display: flex; align-items: center; gap: 10px; }
+    .exp-amt { font-size: 15px; font-weight: 600; color: #993356; }
+
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 18px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .del-btn:active { color: #993356; background: #fbeaf0; }
+
+    .empty {
+      font-size: 13px;
+      color: #bbb;
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+
+    .footer-space { height: calc(var(--safe-bottom) + 1rem); }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-top">
+      <span class="app-title">お小遣い帳</span>
+      <div class="month-nav">
+        <button class="nav-btn" id="prevBtn" aria-label="前の月">&#8249;</button>
+        <span class="month-txt" id="monthLabel"></span>
+        <button class="nav-btn" id="nextBtn" aria-label="次の月">&#8250;</button>
+      </div>
+    </div>
+    <div class="balance-area">
+      <div class="balance-lbl">残高</div>
+      <div class="balance-num" id="balanceNum">¥0</div>
+      <div class="prog-bg"><div class="prog-bar" id="progBar" style="width:0%;background:#9FE1CB"></div></div>
+      <div class="prog-info">
+        <span id="usedLbl">使用 ¥0</span>
+        <span id="budgetLbl">予算 ¥0</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="stat-lbl">今月の予算</div>
+        <div class="stat-val" id="statBudget">¥0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-lbl">支出件数</div>
+        <div class="stat-val" id="statCount">0件</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-ttl">月の予算を設定</div>
+      <div class="row">
+        <input type="number" id="budgetInput" placeholder="例: 30000" min="0" inputmode="numeric" />
+        <button class="purple-btn" id="setBudgetBtn">設定</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-ttl">支出を追加</div>
+      <div class="row">
+        <input type="number" id="expAmtInput" placeholder="金額を入力" min="0" inputmode="numeric" />
+        <button class="purple-btn" id="addExpBtn">＋ 追加</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-ttl">支出履歴</div>
+      <ul class="exp-list" id="expList">
+        <li class="empty">まだ支出はありません</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-space"></div>
+</div>
+
+<script>
+  const S = {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+    data: {}
+  };
+
+  const mk = (y, m) => y + '-' + String(m + 1).padStart(2, '0');
+  const gd = () => {
+    const k = mk(S.year, S.month);
+    if (!S.data[k]) S.data[k] = { budget: 0, expenses: [] };
+    return S.data[k];
+  };
+  const fmt = n => '¥' + Math.round(n).toLocaleString('ja-JP');
+  const MN = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+  function render() {
+    const d = gd();
+    const used = d.expenses.reduce((s, e) => s + e.amount, 0);
+    const bal = d.budget - used;
+    const pct = d.budget > 0 ? Math.min(100, (used / d.budget) * 100) : 0;
+
+    document.getElementById('monthLabel').textContent = S.year + '年 ' + MN[S.month];
+
+    const bn = document.getElementById('balanceNum');
+    bn.textContent = fmt(bal);
+    bn.className = 'balance-num' + (d.budget > 0 && bal < d.budget * 0.2 ? ' low' : '');
+
+    const pb = document.getElementById('progBar');
+    pb.style.width = pct.toFixed(1) + '%';
+    pb.style.background = pct > 80 ? '#F4C0D1' : pct > 50 ? '#FAC775' : '#9FE1CB';
+
+    document.getElementById('usedLbl').textContent = '使用 ' + fmt(used);
+    document.getElementById('budgetLbl').textContent = '予算 ' + fmt(d.budget);
+    document.getElementById('statBudget').textContent = fmt(d.budget);
+    document.getElementById('statCount').textContent = d.expenses.length + '件';
+
+    const list = document.getElementById('expList');
+    if (!d.expenses.length) {
+      list.innerHTML = '<li class="empty">まだ支出はありません</li>';
+      return;
+    }
+
+    list.innerHTML = d.expenses.slice().reverse().map((e, ri) => {
+      const i = d.expenses.length - 1 - ri;
+      return `<li class="exp-item">
+        <span class="exp-date">${e.date}</span>
+        <div class="exp-right">
+          <span class="exp-amt">-${fmt(e.amount)}</span>
+          <button class="del-btn" data-i="${i}" aria-label="削除">×</button>
+        </div>
+      </li>`;
+    }).join('');
+
+    list.querySelectorAll('.del-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        gd().expenses.splice(+b.dataset.i, 1);
+        save();
+        render();
+      });
+    });
+  }
+
+  function save() {
+    try { localStorage.setItem('okozukai_v2', JSON.stringify(S.data)); } catch(e) {}
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem('okozukai_v2');
+      if (raw) S.data = JSON.parse(raw);
+    } catch(e) {}
+    render();
+  }
+
+  document.getElementById('setBudgetBtn').addEventListener('click', () => {
+    const v = parseInt(document.getElementById('budgetInput').value);
+    if (!isNaN(v) && v >= 0) {
+      gd().budget = v;
+      document.getElementById('budgetInput').value = '';
+      save(); render();
+    }
+  });
+
+  document.getElementById('addExpBtn').addEventListener('click', () => {
+    const a = parseInt(document.getElementById('expAmtInput').value);
+    if (!isNaN(a) && a > 0) {
+      const t = new Date();
+      const d = t.getFullYear() + '/' + String(t.getMonth()+1).padStart(2,'0') + '/' + String(t.getDate()).padStart(2,'0');
+      gd().expenses.push({ amount: a, date: d });
+      document.getElementById('expAmtInput').value = '';
+      save(); render();
+    }
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', () => {
+    if (S.month === 0) { S.month = 11; S.year--; } else S.month--;
+    render();
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', () => {
+    if (S.month === 11) { S.month = 0; S.year++; } else S.month++;
+    render();
+  });
+
+  document.getElementById('budgetInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('setBudgetBtn').click();
+  });
+  document.getElementById('expAmtInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('addExpBtn').click();
+  });
+
+  load();
+</script>
+</body>
+</html>
