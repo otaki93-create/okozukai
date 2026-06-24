@@ -7,8 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="お小遣い帳" />
-  <link rel="apple-touch-icon" href="https://otaki93-create.github.io/okozukai/icon.svg" />
-  <link rel="manifest" href="https://otaki93-create.github.io/okozukai/manifest.json" />
+  <link rel="apple-touch-icon" href="icon.svg" />
   <meta name="theme-color" content="#534AB7" />
 
   <style>
@@ -19,7 +18,6 @@
       --purple-400: #7F77DD;
       --purple-600: #534AB7;
       --purple-800: #3C3489;
-      --purple-900: #26215C;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
@@ -71,15 +69,16 @@
       background: rgba(255,255,255,0.15);
       border: none;
       border-radius: 8px;
-      width: 34px;
-      height: 34px;
+      width: 44px;
+      height: 44px;
       cursor: pointer;
       color: #fff;
-      font-size: 18px;
+      font-size: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .nav-btn:active { background: rgba(255,255,255,0.3); }
@@ -170,18 +169,22 @@
 
     input[type="number"] {
       flex: 1;
-      height: 44px;
+      height: 48px;
       border: 1px solid #ddd;
       border-radius: 10px;
       padding: 0 12px;
       font-size: 16px;
       color: #1a1a2e;
-      background: #fafafa;
+      background: #fff;
       -webkit-appearance: none;
       outline: none;
+      touch-action: manipulation;
     }
 
-    input[type="number"]:focus { border-color: var(--purple-400); background: #fff; }
+    input[type="number"]:focus {
+      border-color: var(--purple-400);
+      background: #fff;
+    }
 
     .purple-btn {
       background: var(--purple-600);
@@ -189,15 +192,16 @@
       border: none;
       border-radius: 10px;
       padding: 0 18px;
-      height: 44px;
+      height: 48px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       white-space: nowrap;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
-    .purple-btn:active { background: var(--purple-800); transform: scale(0.97); }
+    .purple-btn:active { background: var(--purple-800); }
 
     .exp-list { list-style: none; }
 
@@ -220,13 +224,14 @@
       cursor: pointer;
       color: #ccc;
       font-size: 18px;
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 6px;
       -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     .del-btn:active { color: #993356; background: #fbeaf0; }
@@ -238,7 +243,7 @@
       padding: 1.5rem 0;
     }
 
-    .footer-space { height: calc(var(--safe-bottom) + 1rem); }
+    .footer-space { height: calc(var(--safe-bottom) + 1.5rem); }
   </style>
 </head>
 <body>
@@ -278,7 +283,7 @@
     <div class="section">
       <div class="section-ttl">月の予算を設定</div>
       <div class="row">
-        <input type="number" id="budgetInput" placeholder="例: 30000" min="0" inputmode="numeric" />
+        <input type="number" id="budgetInput" placeholder="例: 30000" min="0" inputmode="numeric" pattern="[0-9]*" />
         <button class="purple-btn" id="setBudgetBtn">設定</button>
       </div>
     </div>
@@ -286,7 +291,7 @@
     <div class="section">
       <div class="section-ttl">支出を追加</div>
       <div class="row">
-        <input type="number" id="expAmtInput" placeholder="金額を入力" min="0" inputmode="numeric" />
+        <input type="number" id="expAmtInput" placeholder="金額を入力" min="0" inputmode="numeric" pattern="[0-9]*" />
         <button class="purple-btn" id="addExpBtn">＋ 追加</button>
       </div>
     </div>
@@ -303,10 +308,6 @@
 </div>
 
 <script>
-  if (window.navigator.standalone) {
-    window.location.replace('https://otaki93-create.github.io/okozukai/');
-  }
-
   const S = {
     year: new Date().getFullYear(),
     month: new Date().getMonth(),
@@ -409,13 +410,6 @@
   document.getElementById('nextBtn').addEventListener('click', () => {
     if (S.month === 11) { S.month = 0; S.year++; } else S.month++;
     render();
-  });
-
-  document.getElementById('budgetInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('setBudgetBtn').click();
-  });
-  document.getElementById('expAmtInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('addExpBtn').click();
   });
 
   load();
